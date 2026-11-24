@@ -1,0 +1,43 @@
+version: '3'
+
+tasks:
+  default:
+    desc: 사용 가능한 Task 목록 표시
+    cmds:
+      - task --list
+
+  install:
+    desc: npm 의존성 패키지 설치
+    cmds:
+      - npm install
+
+  dev:
+    desc: Vite 개발 서버 실행
+    cmds:
+      - npm run dev
+
+  typecheck:
+    desc: TypeScript 타입 검사 실행
+    cmds:
+      - npx tsc -b
+
+  build:
+    desc: 프로덕션 빌드 (타입 검사 + Vite 번들링)
+    cmds:
+      - npm run build
+
+  preview:
+    desc: 프로덕션 빌드 결과 미리보기 서버 실행
+    cmds:
+      - npm run preview
+
+  sync-atlas:
+    desc: world-atlas 지형 데이터를 src/assets/data로 동기화
+    cmds:
+      - mkdir -p src/assets/data
+      - cp node_modules/world-atlas/countries-50m.json src/assets/data/countries-50m.json
+
+  clean:
+    desc: 빌드 산출물 및 캐시 정리
+    cmds:
+      - rm -rf dist node_modules/.tmp
