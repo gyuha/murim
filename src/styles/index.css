@@ -144,6 +144,7 @@ body.theme-night .map-container.style-sumie {
   fill: rgba(233, 228, 215, 0.35);
   stroke: rgba(58, 52, 44, 0.45);
   stroke-width: 0.9;
+  filter: url(#ink-brush);
 }
 
 .map-container.style-sumie .country-china {
@@ -153,19 +154,10 @@ body.theme-night .map-container.style-sumie {
   filter: url(#ink-brush);
 }
 
-/* Drop the costly SVG filter and the dash animation while panning/zooming. */
-.map-container.style-sumie.is-interacting .country-china {
-  filter: none;
-}
-
-.map-container.is-interacting .route-arc {
-  animation-play-state: paused;
-}
-
 .map-container.style-sumie .province-border {
-  stroke: rgba(56, 48, 38, 0.28);
+  /* Solid, not dashed: dashing ~400KB of province outlines made every repaint ~350ms. */
+  stroke: rgba(56, 48, 38, 0.18);
   stroke-width: 0.8;
-  stroke-dasharray: 3.5 2.5;
 }
 
 body.theme-night .map-container.style-sumie .country-land {
@@ -179,7 +171,7 @@ body.theme-night .map-container.style-sumie .country-china {
 }
 
 body.theme-night .map-container.style-sumie .province-border {
-  stroke: rgba(214, 207, 192, 0.24);
+  stroke: rgba(214, 207, 192, 0.16);
 }
 
 .map-container.style-sumie .ink-underlay {

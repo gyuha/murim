@@ -305,8 +305,6 @@ export const MurimMap = forwardRef<MurimMapHandle, MurimMapProps>(
       const zoomBehavior = d3
         .zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.65, 8])
-        .on('start', () => container.classList.add('is-interacting'))
-        .on('end', () => container.classList.remove('is-interacting'))
         .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
           mapGroup.attr('transform', event.transform.toString());
           const k = event.transform.k;
