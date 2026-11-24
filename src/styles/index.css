@@ -144,7 +144,6 @@ body.theme-night .map-container.style-sumie {
   fill: rgba(233, 228, 215, 0.35);
   stroke: rgba(58, 52, 44, 0.45);
   stroke-width: 0.9;
-  filter: url(#ink-brush);
 }
 
 .map-container.style-sumie .country-china {
@@ -152,6 +151,15 @@ body.theme-night .map-container.style-sumie {
   stroke: #26221e;
   stroke-width: 1.9;
   filter: url(#ink-brush);
+}
+
+/* Drop the costly SVG filter and the dash animation while panning/zooming. */
+.map-container.style-sumie.is-interacting .country-china {
+  filter: none;
+}
+
+.map-container.is-interacting .route-arc {
+  animation-play-state: paused;
 }
 
 .map-container.style-sumie .province-border {
