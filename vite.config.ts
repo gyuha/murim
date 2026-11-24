@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  // GitHub Pages serves this project from /murim/.
-  base: '/murim/',
+  // Served from the custom domain murim.gyuha.com (site root).
+  base: '/',
   plugins: [react(), tailwindcss()],
   server: {
     port: 25173,
