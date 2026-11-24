@@ -11,6 +11,7 @@ import * as topojson from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import { Compass, Crosshair, Minus, Plus } from 'lucide-react';
 import countriesAtlasUrl from '../assets/data/countries-50m.json?url';
+import chinaProvincesUrl from '../assets/data/china-provinces.json?url';
 import sumieUnderlayUrl from '../assets/images/sumie-underlay.jpg';
 import { FACTION_META, LABEL_OFFSETS } from '../data/murimData';
 import type { MapStyle, MurimLocation, RouteState } from '../types/murim';
@@ -57,6 +58,7 @@ export const MurimMap = forwardRef<MurimMapHandle, MurimMapProps>(
     const [coordText, setCoordText] = useState('108.00°E, 34.00°N');
 
     const worldDataRef = useRef<WorldTopology | null>(null);
+    const provinceDataRef = useRef<GeoJSON.FeatureCollection | null>(null);
     const projectionRef = useRef<d3.GeoProjection | null>(null);
     const pathGeneratorRef = useRef<d3.GeoPath | null>(null);
     const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -66,6 +68,7 @@ export const MurimMap = forwardRef<MurimMapHandle, MurimMapProps>(
       inkBgLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
       graticuleLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
       landLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
+      provinceLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
       routeLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
       markerLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
     } | null>(null);
@@ -99,6 +102,19 @@ export const MurimMap = forwardRef<MurimMapHandle, MurimMapProps>(
         .attr('class', (d) =>
           String(d.id) === '156' ? 'country-land country-china' : 'country-land',
         )
+        .attr('d', (d) => pathGenerator(d) ?? '');
+    }, []);
+
+    const drawChinaProvinces = useCallback((provinces: GeoJSON.FeatureCollection) => {
+      const layers = layersRef.current;
+      const pathGenerator = pathGeneratorRef.current;
+      if (!layers || !pathGenerator) return;
+
+      layers.provinceLayer
+        .selectAll<SVGPathElement, GeoJSON.Feature>('path')
+        .data(provinces.features)
+        .join('path')
+        .attr('class', 'province-border')
         .attr('d', (d) => pathGenerator(d) ?? '');
     }, []);
 
@@ -253,6 +269,7 @@ export const MurimMap = forwardRef<MurimMapHandle, MurimMapProps>(
       const inkBgLayer = mapGroup.append('g').attr('class', 'ink-bg-layer');
       const graticuleLayer = mapGroup.append('g');
       const landLayer = mapGroup.append('g');
+      const provinceLayer = mapGroup.append('g').attr('class', 'province-layer');
       const routeLayer = mapGroup.append('g');
       const markerLayer = mapGroup.append('g');
 
@@ -261,6 +278,7 @@ export const MurimMap = forwardRef<MurimMapHandle, MurimMapProps>(
         inkBgLayer,
         graticuleLayer,
         landLayer,
+        provinceLayer,
         routeLayer,
         markerLayer,
       };
@@ -342,22 +360,32 @@ export const MurimMap = forwardRef<MurimMapHandle, MurimMapProps>(
       if (worldDataRef.current) {
         drawWorldCountries(worldDataRef.current);
       }
+      if (provinceDataRef.current) {
+        drawChinaProvinces(provinceDataRef.current);
+      }
       renderMapDataRef.current();
-    }, [drawWorldCountries]);
+    }, [drawChinaProvinces, drawWorldCountries]);
 
     const loadAtlas = useCallback(async () => {
       setAtlasStatus('loading');
       try {
-        const topo = await d3.json<WorldTopology>(countriesAtlasUrl);
+        const [topo, provinces] = await Promise.all([
+          d3.json<WorldTopology>(countriesAtlasUrl),
+          d3.json<GeoJSON.FeatureCollection>(chinaProvincesUrl).catch(() => null),
+        ]);
         if (!topo) throw new Error('Empty topology');
         worldDataRef.current = topo;
         drawWorldCountries(topo);
+        if (provinces) {
+          provinceDataRef.current = provinces;
+          drawChinaProvinces(provinces);
+        }
         renderMapDataRef.current();
         setAtlasStatus('ready');
       } catch {
         setAtlasStatus('error');
       }
-    }, [drawWorldCountries]);
+    }, [drawChinaProvinces, drawWorldCountries]);
 
     useEffect(() => {
       initMapCanvas();
