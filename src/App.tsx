@@ -54,7 +54,7 @@ export default function App() {
     setGlossaryTermId(termId);
     setGlossaryOpen(true);
   }, []);
-  const [mapStyle, setMapStyle] = useState<MapStyle>('vector');
+  const [mapStyle, setMapStyle] = useState<MapStyle>('sumie');
   const [customPins, setCustomPins] = useState<MurimLocation[]>(loadSavedPins);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
